@@ -201,7 +201,6 @@ class DB {
         where: 'habitId = ?', whereArgs: [habitId], orderBy: 'date ASC');
   }
 }
-
 class Notif {
   static final _p = FlutterLocalNotificationsPlugin();
   static bool _ready = false;
@@ -489,7 +488,6 @@ class _TodayPageState extends State<TodayPage> {
               ),
       );
 }
-
 class EditHabitPage extends StatefulWidget {
   final Habit? habit;
   const EditHabitPage({super.key, this.habit});

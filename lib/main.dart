@@ -230,23 +230,25 @@ class Notif {
         tz.local, now.year, now.month, now.day, h.remindHour, h.remindMinute);
     if (!next.isAfter(now)) next = next.add(const Duration(days: 1));
     await _p.zonedSchedule(
-      h.id!,
-      '打卡提醒：${h.name}',
-      h.target == null
-          ? '别忘了打卡哦'
-          : '目标 ${fmtNum(h.target)}${h.unit}，加油！',
-      next,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'habit_daily', '打卡提醒',
-          channelDescription: '每日打卡提醒',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
+  h.id!,
+  '打卡提醒：${h.name}',
+  h.target == null
+      ? '别忘了打卡哦'
+      : '目标 ${fmtNum(h.target)}${h.unit}，加油！',
+  next,
+  const NotificationDetails(
+    android: AndroidNotificationDetails(
+      'habit_daily', '打卡提醒',
+      channelDescription: '每日打卡提醒',
+      importance: Importance.high,
+      priority: Priority.high,
+    ),
+  ),
+  androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+  matchDateTimeComponents: DateTimeComponents.time,
+  uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime, // 👈 就是加了这半行
+);
   }
 
   static Future<void> cancel(int id) async => _p.cancel(id);

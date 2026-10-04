@@ -559,6 +559,9 @@ class _EditHabitPageState extends State<EditHabitPage> {
       await DB.updateHabit(h);
       id = h.id!;
     }
+    // 如果用户开启了提醒，才去设置通知，并且加保护
+if (h.remindEnabled) {
+  try {
     await Notif.schedule(Habit(
       id: id,
       name: h.name,
@@ -571,7 +574,18 @@ class _EditHabitPageState extends State<EditHabitPage> {
       sortOrder: h.sortOrder,
       createdAt: h.createdAt,
     ));
-    if (mounted) Navigator.pop(context, true);
+  } catch (e) {
+    debugPrint('通知设置失败，但数据已安全保存: $e');
+  }
+}
+
+// 数据保存成功后，弹出提示并返回上一页
+if (mounted) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('保存成功！')),
+  );
+  Navigator.pop(context, true);
+}
   }
 
   @override

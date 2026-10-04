@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
@@ -75,7 +74,8 @@ class DB {
 
   static Future<Database> get db async {
     if (_db != null) return _db!;
-    final p = join(await getDatabasesPath(), 'habit_tracker.db');
+    final dbPath = await getDatabasesPath();
+    final p = '$dbPath/habit_tracker.db';
     _db = await openDatabase(p, version: 1, onCreate: (d, v) async {
       await d.execute('''CREATE TABLE habits(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -184,7 +184,6 @@ class DB {
   static Future<void> deleteMemo(int id) async =>
       (await db).delete('memos', where: 'id = ?', whereArgs: [id]);
 
-  // 新增：查询某个打卡项近 N 天的数据（按日期排序）
   static Future<List<Map<String, Object?>>> rangeValues(int habitId, int days) async {
     final d = await db;
     final now = DateTime.now();
@@ -196,7 +195,6 @@ class DB {
         orderBy: 'date ASC');
   }
 
-  // 新增：查询某个打卡项的历史所有数据（按时间排序，用于按次数作图）
   static Future<List<Map<String, Object?>>> allValues(int habitId) async {
     final d = await db;
     return d.query('check_ins',
@@ -655,7 +653,6 @@ class _EditHabitPageState extends State<EditHabitPage> {
       );
 }
 
-// ==================== 折线图页面 ====================
 class ChartPage extends StatefulWidget {
   final Habit habit;
   const ChartPage({super.key, required this.habit});
@@ -667,7 +664,7 @@ class _ChartPageState extends State<ChartPage> {
   int _days = 30;
   List<Map<String, Object?>> _records = [];
   bool _loading = true;
-  bool _byCount = false; // false: 按天数, true: 按次数
+  bool _byCount = false;
 
   @override
   void initState() {
@@ -679,9 +676,9 @@ class _ChartPageState extends State<ChartPage> {
     setState(() => _loading = true);
     List<Map<String, Object?>> rs;
     if (_byCount) {
-      rs = await DB.allValues(widget.habit.id!); // 按次数拉取全部历史
+      rs = await DB.allValues(widget.habit.id!);
     } else {
-      rs = await DB.rangeValues(widget.habit.id!, _days); // 按天数拉取
+      rs = await DB.rangeValues(widget.habit.id!, _days);
     }
     setState(() {
       _records = rs;
@@ -698,7 +695,6 @@ class _ChartPageState extends State<ChartPage> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // 切换模式
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
                   child: SegmentedButton<bool>(
@@ -713,7 +709,6 @@ class _ChartPageState extends State<ChartPage> {
                     },
                   ),
                 ),
-                // 天数范围选择（仅按天数模式显示）
                 if (!_byCount)
                   Padding(
                     padding: const EdgeInsets.all(12),
@@ -851,7 +846,6 @@ class _ChartPageState extends State<ChartPage> {
   }
 }
 
-// ==================== 日历页 ====================
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
   @override
@@ -957,7 +951,6 @@ class _CalendarPageState extends State<CalendarPage> {
       );
 }
 
-// ==================== 某天详情页 ====================
 class DayDetailPage extends StatefulWidget {
   final DateTime date;
   const DayDetailPage({super.key, required this.date});

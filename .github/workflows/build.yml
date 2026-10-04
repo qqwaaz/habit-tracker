@@ -66,11 +66,11 @@ jobs:
 
           s = bg.read_text()
           if bg.suffix == '.kts':
-              s = re.sub(r'(sourceCompatibility\s*=\s*JavaVersion\.VERSION_\d+)',
+              s = re.sub(r'(sourceCompatibility\s*=\s*JavaVersion\.VERSION_[\d_]+)',
                          r'\1\n            isCoreLibraryDesugaringEnabled = true', s, count=1)
               dep = '    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")\n'
           else:
-              s = re.sub(r'(sourceCompatibility\s*=?\s*JavaVersion\.VERSION_\d+)',
+              s = re.sub(r'(sourceCompatibility\s*=?\s*JavaVersion\.VERSION_[\d_]+)',
                          r'\1\n        coreLibraryDesugaringEnabled true', s, count=1)
               dep = "    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'\n"
 
